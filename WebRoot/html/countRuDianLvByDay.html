@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>按天统计入店率</title>
+		<script type="text/javascript" src="../js/ichart.1.2.min.js"></script>
+		<script type="text/javascript" src="../jedate/jedate.js"></script>
+		<script type="text/javascript" src="../js/jquery-1.7.2.min.js"></script>
+		<link rel="stylesheet" href="../css/demo.css" type="text/css"/>
+		<script type="text/javascript">
+			function getNextDay(d){
+		        d = new Date(d);
+		        d = +d + 1000*60*60*24;
+		        d = new Date(d);
+		        //return d;
+		        //格式化
+		        return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+		         
+		    }
+			$(function(){
+				$('#button').click(function (){
+					var startTime=document.getElementById("dateinfo").value;
+					var endTime=document.getElementById("dateinfo1").value;
+					var rang=document.getElementById("rang").value;
+					if(rang==null||rang=="")
+					{
+						alert("请输入店铺面积！");
+						return;
+					}
+					startTime=startTime.replace(/[\u4E00-\u9FA5]/g,"/");
+					endTime=endTime.replace(/[\u4E00-\u9FA5]/g,"/");
+					////alert(startTime+","+endTime);
+					
+					var n=0;
+					var url="../servlet/PersonsFlowCountServlet?method=countRuDianLvByDay";
+					var datas={"startTime":startTime,"endTime":endTime,"rang":rang};
+					$.getJSON(url,datas,function(data){
+						var n=data.timeDif;
+						alert(n);	
+						var allDate=[]; 
+						startTime=startTime.replace(/\//g,"-");
+						startTime=startTime.substring(0,startTime.length-1)
+						//alert("1=="+startTime)
+						for(var i=0;i<=n;i++){
+							allDate[i]=startTime;
+							startTime=getNextDay(startTime);
+						}
+						alert(allDate.length);
+						var values=data.personNum;
+						var luguolv=[];
+						//alert(100-values[1]);
+						for(var i=0;i<values.length;i++)
+						{
+							luguolv[i]=100-values[i];
+						}
+						var data = [
+						         	{
+						         		name : '进店',
+						         		value:values,
+						         		color:'#1385a5'
+						         	},
+						         	{
+						         		name : '错过',
+						         		value:luguolv,
+						         		color:'#c56966'
+						         	}
+						         ];
+				
+						var chart = new iChart.ColumnMulti2D({
+								render : 'canvasDiv',
+								data: data,
+								labels:allDate,
+								title : '按月统计门店的入店率',
+								subtitle : '蓝色为入店，红色为错过',
+								footnote : '数据来源：WiFi探针',
+								width : 800,
+								height : 400,
+								sub_option : {
+									listeners : {
+										parseText : function(r, t) {
+											return t + "%";
+										}
+									}
+								},
+								
+								background_color : '#ffffff',
+								legend:{
+									enable:true,
+									background_color : null,
+									border : {
+										enable : false
+									}
+								},
+								coordinate:{
+									background_color : '#f1f1f1',
+									scale:[{
+										 position:'left',	
+										 start_scale:0,
+										 end_scale:100,
+										 scale_space:10
+									},{
+										label:{
+											fontsize:11,
+											textAlign:'right',
+											textBaseline:'middle',
+											rotate:-45,
+											color : '#666666'
+									 		}
+									 }],
+									width:600,
+									height:260
+								}
+						});
+						chart.draw();
+					});
+				});
+			});
+			</script>
+		</head>
+		<body>
+			<div style="width:100%;height:60px;">
+			请选择统计时限：
+			<input class="datainp" id="dateinfo" type="text" placeholder="请选择"  readonly>~
+			<input class="datainp" id="dateinfo1" type="text" placeholder="请选择"  readonly>
+			<br>请输入店铺大小：
+			<input class="datainp" id="rang" type="text" placeholder="请输入(单位：平方米)">&nbsp;&nbsp;
+			<input id="button" type="button" onclick="fn()" value="确认">
+			 记住我的店铺大小:<input id="ck" type="checkbox">
+			</div>
+			<div id='canvasDiv'></div>
+			<div class='ichartjs_info'>
+				<div class='ichartjs_sm'>说明</div>
+				<div class='ichartjs_details'>
+					此图表明了最近几天的入店率情况！
+					<br>
+				</div>
+				<span class='ichartjs_sm'>备注：</span>
+				<span class='ichartjs_details'>
+					数据均来源于WiFi探针。
+				</span>
+			</div>
+<script type="text/javascript">
+    //jeDate.skin('gray');
+    jeDate({
+		dateCell:"#dateinfo",
+		format:"YYYY年MM月DD日",
+		isinitVal:true,
+		isTime:true, //isClear:false,
+		minDate:"2014-09-19",
+		okfun:function(val){alert(val)}
+	});
+	jeDate({
+		dateCell:"#dateinfo1",
+		format:"YYYY年MM月DD日",
+		isinitVal:true,
+		isTime:true, //isClear:false,
+		minDate:"2014-09-19",
+		okfun:function(val){alert(val)}
+	})
+</script>
+<script type="text/javascript">
+		var rang = document.getElementsByTagName("input")[2],
+			check = document.getElementsByTagName("input")[4],
+            loRang = localStorage.getItem("rang") || "";
+        rang.value = loRang;
+        if(rang !== ""){
+            check.setAttribute("checked","");
+        }
+    function fn(){
+        if(check.checked){
+            localStorage.setItem("rang",rang.value);
+        }else{
+            localStorage.setItem("rang","");
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>ichartjs 示例</title>
+		<meta http-equiv="keywords" content="ichartjs demo,Html5 demo,ichart demo"></meta>
+		<meta http-equiv="description" content="The ichartjs's gallery center,ichartjs 示例中心"></meta>
+		<script type="text/javascript" src="../js/ichart.1.2.min.js"></script>
+		<script type="text/javascript" src="../js/jquery-1.7.2.min.js"></script>		
+		<link rel="stylesheet" href="../css/demo.css" type="text/css"/>
+		<script type="text/javascript">
+			$(function(){
+				var url="../servlet/PersonsFlowCountServlet?method=JinRiLaiFangXinLaoZhanBi";
+				var datas=null;
+				$.getJSON(url,datas,function(data){	
+					var newk=data.personNum[1];
+					var oldk=data.personNum[0];
+					var data = [
+					        	{name : '新客户',value : newk,color:'#a5c2d5'},
+					        	{name : '老主顾',value : oldk,color:'#cbab4f'},
+				        	];
+		        	
+					new iChart.Pie2D({
+						render : 'canvasDiv',
+						data: data,
+						title : '近七天新老客户来访统计',
+						legend : {
+							enable : true
+						},
+						sub_option : {
+							label : {
+								background_color:null,
+								sign:false,//设置禁用label的小图标
+								padding:'0 4',
+								border:{
+									enable:false,
+									color:'#666666'
+								},
+								fontsize:11,
+								fontweight:600,
+								color : '#4572a7'
+							},
+							border : {
+								width : 2,
+								color : '#ffffff'
+							}
+						},
+						animation:true,
+						showpercent:true,
+						decimalsnum:2,
+						width : 800,
+						height : 400,
+						radius:140
+					}).draw();
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id='canvasDiv'></div>
+		<div class='ichartjs_info'>
+				<div class='ichartjs_sm'>说明</div>
+				<div class='ichartjs_details'>
+					此图展示了近七天来访客户的新老占比。
+				</div>
+				<span class='ichartjs_sm'>备注：</span>
+				<span class='ichartjs_details'>
+					数据均来源于WiFi探针。
+				</span>
+			</div>
+	</body>
+</html>

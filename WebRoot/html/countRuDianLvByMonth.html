@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>按月统计入店率</title>
+		<script type="text/javascript" src="../js/ichart.1.2.min.js"></script>
+		<script type="text/javascript" src="../jedate/jedate.js"></script>
+		<script type="text/javascript" src="../js/jquery-1.7.2.min.js"></script>
+		<link rel="stylesheet" href="../css/demo.css" type="text/css"/>
+		<script type="text/javascript">
+			$(function(){
+				$('#button').click(function (){
+					var startTime=document.getElementById("indate").value;
+					var endTime=document.getElementById("indate1").value;
+					var rang=document.getElementById("rang").value;
+					if(rang==null||rang=="")
+					{
+						alert("请输入店铺面积！");
+						return;
+					}
+					startTime=startTime.replace(/[\u4E00-\u9FA5]/g,"/");
+					endTime=endTime.replace(/[\u4E00-\u9FA5]/g,"/");
+					////alert(startTime+","+endTime);
+					
+					var n=0;
+					var url="../servlet/PersonsFlowCountServlet?method=countRuDianLvByMonth";
+					var datas={"startTime":startTime,"endTime":endTime,"rang":rang};
+					$.getJSON(url,datas,function(data){	
+						alert(data.allDateStrings);
+						var allDate=data.allDateStrings; 
+						var values=data.personNum;
+						var luguolv=[];
+						//alert(100-values[1]);
+						for(var i=0;i<values.length;i++)
+						{
+							luguolv[i]=100-values[i];
+						}
+						var data = [
+						         	{
+						         		name : '进店',
+						         		value:values,
+						         		color:'#1385a5'
+						         	},
+						         	{
+						         		name : '错过',
+						         		value:luguolv,
+						         		color:'#c56966'
+						         	}
+						         ];
+				
+						var chart = new iChart.ColumnMulti2D({
+								render : 'canvasDiv',
+								data: data,
+								labels:allDate,
+								title : '按月统计门店的入店率',
+								subtitle : '蓝色为入店，红色为错过',
+								footnote : '数据来源：WiFi探针',
+								width : 800,
+								height : 400,
+								sub_option : {
+									listeners : {
+										parseText : function(r, t) {
+											return t + "%";
+										}
+									}
+								},
+								
+								background_color : '#ffffff',
+								legend:{
+									enable:true,
+									background_color : null,
+									border : {
+										enable : false
+									}
+								},
+								coordinate:{
+									background_color : '#f1f1f1',
+									scale:[{
+										 position:'left',	
+										 start_scale:0,
+										 end_scale:100,
+										 scale_space:10
+									}],
+									width:600,
+									height:260
+								}
+						});
+						chart.draw();
+					});
+				});
+			});
+			</script>
+		</head>
+		<body>
+			<div style="width:100%;height:66px;">
+				请选择统计时限：				
+				<input class="datainp" id="indate" type="text" placeholder="只显示年月" value=""  readonly>
+				~<input class="datainp" id="indate1" type="text" placeholder="只显示年月" value=""  readonly>
+				<br>请输入店铺大小：
+				<input class="datainp" id="rang" type="text" placeholder="请输入(单位：平方米)">&nbsp;&nbsp;
+				<input id="button" type="button" value="确认">
+			</div>
+			<div id='canvasDiv'></div>
+			<div class='ichartjs_info'>
+				<div class='ichartjs_sm'>说明</div>
+				<div class='ichartjs_details'>
+					此图表明了最近几个月的入店率情况！
+					<br>
+				</div>
+				<span class='ichartjs_sm'>备注：</span>
+				<span class='ichartjs_details'>
+					数据均来源于WiFi探针。
+				</span>
+			</div>
+<script type="text/javascript">
+    //jeDate.skin('gray');
+	jeDate({
+		dateCell:"#indate",//isinitVal:true,
+		format:"YYYY年MM月",
+		isTime:false, //isClear:false,
+		minDate:"2015-10-19 00:00:00",
+		maxDate:"2016-11-8 00:00:00"
+	})
+	jeDate({
+		dateCell:"#indate1",//isinitVal:true,
+		format:"YYYY年MM月",
+		isTime:false, //isClear:false,
+		minDate:"2015-10-19 00:00:00",
+		maxDate:"2016-11-8 00:00:00"
+	})
+</script>
+</body>
+</html>
